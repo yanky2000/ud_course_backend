@@ -29,4 +29,10 @@ def valid_day(day):
         if 0 < day <= 31:
             return day
 
+def valid_year(year):
+    if year and year.isdigit(): #First check if year consists of digits only
+        year = int(year)
+        if 0 < year <= 31:
+            return year
+
 # print(valid_day('3'))
