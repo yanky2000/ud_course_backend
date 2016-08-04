@@ -19,16 +19,8 @@ import os
 import jinja2
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
-
-html_form = """
-<h2> Enter your food </h2>
-<form>
-    <input type="text" name="food">
-    <input type="hidden" name="food" value="eggs">
-    <button>Add</button>
-</form>
-"""
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+                                autoescape = True)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -43,19 +35,15 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        n = self.request.get('n')
-        # if n.isdigit():
-        if n:
-            n = int(n)
-        # else:
-        #     n =0
-        self.render("shopping_list.html", n=n)
+        items = self.request.get_all('food')
+        self.render("shopping_list.html", items = items)
 
 class FizzBuzzHandler(Handler):
     def get(self):
-        n = self.request.get('n', 0) # n default is 0
-        n = n and int(n)
-        self.render('fizzbuzz.html', n = n)
+        n = self.request.get('n')
+        if n:
+            n = n and int(n)
+        self.render("fizzbuzz.html", n=n)
 
 
 app = webapp2.WSGIApplication([
