@@ -15,112 +15,45 @@
 # limitations under the License.
 #
 import webapp2
-import validate
+import os
+import jinja2
 
-form="""
-<form method='post'>
-    <h1> What is your birhtday?</h1>
-    <label>
-        Day
-        <input type="text" name="day" value='%(day)s'>
-    </label>
-    <label>
-        Month
-        <input type="text" name="month" value="%(month)s">
-    </label>
-    <label>
-        Year
-        <input type="text" name="year" value="%(year)s">
-    </label>
-    <div style="color:red">
-        %(error)s
-    </div>
-    <br>
-    <input type="submit">
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+
+html_form = """
+<h2> Enter your food </h2>
+<form>
+    <input type="text" name="food">
+    <input type="hidden" name="food" value="eggs">
+    <button>Add</button>
 </form>
 """
 
-months = ['January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December']
-          
-months_abbr = dict((m[:3].lower(), m) for m in months)
+class Handler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
 
-def valid_month(month):
-    if month:
-        short_month = month[:3].lower() #if first 3 correct the user is on the right track
-        return months_abbr.get(short_month)
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
+        return t.render(params)
 
-def valid_day(day):
-    if day and day.isdigit(): #First check if day consists of digits only
-        day = int(day)
-        if 0 < day <= 31:
-            return day
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
 
-def valid_year(year):
-    if year and year.isdigit(): #First check if year consists of digits only
-        year = int(year)
-        if 1900 < year <= 2016:
-            return year
-
-import cgi
-def escape_html(s):
-    return cgi.escape(s, quote = True) # html escaping
-    
-class MainHandler(webapp2.RequestHandler):
-
-    def write_form(self, error="", day="", month="", year=""):
-        params = {
-            "error": error, 
-            "day": escape_html(day),
-            "month": escape_html(month),
-            "year": escape_html(year),
-            }
-        return self.response.out.write(form % params)
-
-
+class MainPage(Handler):
     def get(self):
-        # self.response.headers['Content-type']='text/html'
-        self.write_form()
-
-    def post(self):
-       
-        user_day = self.request.get('day')
-        user_month = self.request.get('month')
-        user_year = self.request.get('year')
-
-        day = valid_day(user_day)
-        month = valid_month(user_month)
-        year = valid_year(user_year)
-
-        if not (day and month and year):
-            self.write_form("Looks like you entered not a valid date", user_day, user_month, user_year)
-        else: 
-            self.redirect("/thanks")
-
-class TestHandler(webapp2.RequestHandler):
-    def get(self):
-        q=self.request.get("q")
-        self.response.write(q)
-        # self.response.headers['Content-type']='text/plain'
-        # self.response.write(self.request)
-
-class ThanksHandler(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write("You have been redirected here. Date is perfectly valid!")
+        n = self.request.get('n')
+        # if n.isdigit():
+        if n:
+            n = int(n)
+        # else:
+        #     n =0
+        self.render("shopping_list.html", n=n)
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler),
-    ('/thanks', ThanksHandler),
+    ('/', MainPage),
+    # ('/thanks', ThanksHandler),
     # ('/testform', TestHandler)
 
 

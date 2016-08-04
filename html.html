@@ -11,4 +11,10 @@
         Year
         <input type="text" name="year">
     </label>
+    <ol>
+        {% for x in range(1, n+1) %}
+            <li>{{x ** 2}}</li>
+        {% endfor %}
+
+    </ol>
 </form>
