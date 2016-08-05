@@ -38,8 +38,3 @@ class Rot13():
     def decrypted_dic(self):
         return dict(zip(self.values, self.keys))
 
-d = Rot13()
-en = d.encrypted_dic()
-de = d.decrypted_dic()
-print "en :"+str(en)
-print "de :"+str(de)
