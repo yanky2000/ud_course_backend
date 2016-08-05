@@ -22,10 +22,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                 autoescape = True)
 
-# (1) make dictionary for letter subst.
-# (2) 
-
-
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -39,22 +35,20 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        self.redirect("/rot13")
+        items = self.request.get_all('food')
+        self.render("shopping_list.html", items = items)
 
-class Rot13Handler(Handler):
+class FizzBuzzHandler(Handler):
     def get(self):
-        self.render("rot13.html")
-
-    def post(self):
-        user_text = self.request.get_('text')
-        # if n:
-        #     n = n and int(n)
-        self.render("rot13.html", text=user_text)
+        n = self.request.get('n')
+        if n:
+            n = n and int(n)
+        self.render("fizzbuzz.html", n=n)
 
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/rot13', Rot13Handler),
+    ('/fizzbuzz', FizzBuzzHandler),
     # ('/thanks', ThanksHandler),
     # ('/testform', TestHandler)
 
